@@ -15,7 +15,7 @@ class StoryFetcher
         story_text += page.css('div.b-story-body-x').text
       end
 
-      send_to_kindle(link, story_text)
+      send_to_kindle(link, story_text, meta)
     end
   end
 
@@ -71,7 +71,7 @@ class StoryFetcher
     "#{keywords}\n\n#{description}\n\n#{author}\n\n\n\n"
   end
 
-  def send_to_kindle(link, story_text)
+  def send_to_kindle(link, story_text, meta)
     file = write_to_file(link.split('/').last, story_text, meta)
     title = link.gsub('.txt', '').split('/').last.titleize
 

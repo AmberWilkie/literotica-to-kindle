@@ -3,10 +3,9 @@ class StoryFetcher
 
   GENRE_LINKS = %w[
     https://www.literotica.com/c/non-consent-stories
-  ]
+  ].freeze
 
-  def initialize;
-  end
+  def initialize; end
 
   def call
     puts valid_links
@@ -15,6 +14,7 @@ class StoryFetcher
       (1..100).each do |num|
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
         break unless page.css('a.b-pager-next').any?
+
         story_text += page.css('div.b-story-body-x').text
       end
       write_to_file(link.split('/').last, story_text)
@@ -26,8 +26,8 @@ class StoryFetcher
 
   def titles
     @titles ||= HTTParty.get("#{GENRE_LINKS.first}/rss")['rss']['channel']['item']
-                  .select { |item| Date.parse(item['pubDate']) == Date.today } # exclude old stories
-                  .map { |item| item['title'] }
+                        .select { |item| Date.parse(item['pubDate']) == Date.today } # exclude old stories
+                        .map { |item| item['title'] }
   end
 
   def links
@@ -36,8 +36,8 @@ class StoryFetcher
 
   def valid_links
     @valid_links ||= links.select { |link| titles.include?(link.children.first.text) }
-                       .map { |link| link.attributes['href'].value }
-                       .reject { |link| link.last.match(/[2-9]/) } # exclude continuing chapters
+                          .map { |link| link.attributes['href'].value }
+                          .reject { |link| link.last.match(/[2-9]/) } # exclude continuing chapters
   end
 
   def write_to_file(title, text)

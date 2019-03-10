@@ -23,6 +23,7 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+config/genre_links.rb
 .env
 .idea
 tmp

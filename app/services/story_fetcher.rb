@@ -4,7 +4,6 @@ class StoryFetcher
   def initialize; end
 
   def call
-    puts valid_links
     valid_links.each do |link|
       story_text = ''
       meta = ''
@@ -12,15 +11,11 @@ class StoryFetcher
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
         break unless num == 1 || page.css('a.b-pager-next').any?
 
-        keywords = page.at("meta[name='keywords']")['content']
-        description = page.at("meta[name='description']")['content']
-        author = page.css('span.b-story-user-y').children.last.text
-        meta = "#{keywords}\n#{description}\n#{author}\n\n" if meta.empty?
+        meta = build_meta(page) if meta.empty?
         story_text += page.css('div.b-story-body-x').text
       end
 
-      write_to_file(link.split('/').last, story_text, meta)
-      # send story text to Kindle, bundled nice so it will be readable and whatnot.
+      send_to_kindle(link, story_text)
     end
   end
 
@@ -55,6 +50,7 @@ class StoryFetcher
     file.puts(meta)
     file.puts(text)
     file.close
+    file
   end
 
   def published_twenty_days_ago?(item)
@@ -65,5 +61,20 @@ class StoryFetcher
 
   def continuing_chapter?(link)
     link.match(/[2-9]/) && (link.match(/-ch-/i) || link.match(/-pt-/i))
+  end
+
+  def build_meta(page)
+    keywords = page.at("meta[name='keywords']")['content']
+    description = page.at("meta[name='description']")['content']
+    author = page.css('span.b-story-user-y').children.last.text
+
+    "#{keywords}\n\n#{description}\n\n#{author}\n\n\n\n"
+  end
+
+  def send_to_kindle(link, story_text)
+    file = write_to_file(link.split('/').last, story_text, meta)
+    title = link.gsub('.txt', '').split('/').last.titleize
+
+    ApplicationMailer.send_document(title, file.path).deliver
   end
 end

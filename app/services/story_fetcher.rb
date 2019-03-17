@@ -26,21 +26,20 @@ class StoryFetcher
                       .map { |link| "https://www.literotica.com/top/#{link}/last-30-days/?mode=publishes" }
   end
 
-  def links
-    @links ||= parsed_links
+  def nodes
+    @nodes ||= parsed_nodes
   end
 
-  def parsed_links
-    links = []
+  def parsed_nodes
+    nodes = []
     genre_links.each do |link|
-      url = Nokogiri::HTML(open(link)).css('a.title')
-      links << url
+      nodes << Nokogiri::HTML(open(link)).css('a.title')
     end
-    links.flatten.compact
+    nodes.flatten.compact
   end
 
   def valid_links
-    @valid_links ||= links.select { |link| published_twenty_days_ago?(link) }
+    @valid_links ||= nodes.select { |link| published_twenty_days_ago?(link) && highly_rated?(link) }
                           .map { |link| link.attributes['href'].value }
                           .reject { |link| continuing_chapter?(link) }
   end
@@ -55,6 +54,12 @@ class StoryFetcher
 
   def published_twenty_days_ago?(item)
     Date.strptime(item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s, '%m/%d/%y') == Date.today - 20.days
+  rescue StandardError
+    false
+  end
+
+  def highly_rated?(item)
+    item.parent.parent.css('td.ratecount').text.split(' ').first.to_f > 4.75
   rescue StandardError
     false
   end

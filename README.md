@@ -19,4 +19,4 @@ EMAIL_PASSWORD=<your sandbox gmail account password>
 
 
 ### To Literotica
-Seriously, what would I have done for the past... twenty years without you? If you're interested in hiring someone to develop an open API for you (to avoid this web scraping, perhaps), please get in touch! I've got lots of ideas for improvements to the user experience.
+I've been a big fan for the last twenty (?) years. Thanks for supporting such an awesome, open, engaged community. If you're interested in hiring someone to develop an open API for you (to avoid this web scraping, perhaps), please get in touch! I've got lots of ideas for improvements to the user experience.

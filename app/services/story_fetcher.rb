@@ -1,12 +1,14 @@
 class StoryFetcher
   require 'open-uri'
 
+  DAYS_AGO_TO_EXAMINE = 20
+  RATING_THRESHOLD = 4.75
+
   def initialize; end
 
   def call
     valid_links.each do |link|
-      story_text = ''
-      meta = ''
+      story_text, meta = ''
       (1..100).each do |num|
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
 
@@ -23,25 +25,13 @@ class StoryFetcher
 
   def genre_links
     ENV['GENRE_LINKS'].split('|')
-                      .map { |link| "https://www.literotica.com/top/#{link}/last-30-days/?mode=publishes" }
-  end
-
-  def nodes
-    @nodes ||= parsed_nodes
-  end
-
-  def parsed_nodes
-    nodes = []
-    genre_links.each do |link|
-      nodes << Nokogiri::HTML(open(link)).css('a.title')
-    end
-    nodes.flatten.compact
+      .map { |link| "https://www.literotica.com/top/#{link}/last-30-days/?mode=publishes" }
   end
 
   def valid_links
     @valid_links ||= nodes.select { |link| published_twenty_days_ago?(link) && highly_rated?(link) }
-                          .map { |link| link.attributes['href'].value }
-                          .reject { |link| continuing_chapter?(link) }
+                       .map { |link| link.attributes['href'].value }
+                       .reject { |link| continuing_chapter?(link) }
   end
 
   def write_to_file(title, text, meta)
@@ -53,13 +43,14 @@ class StoryFetcher
   end
 
   def published_twenty_days_ago?(item)
-    Date.strptime(item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s, '%m/%d/%y') == Date.today - 20.days
+    Date.strptime(item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s, '%m/%d/%y') ==
+      Date.today - DAYS_AGO_TO_EXAMINE.days
   rescue StandardError
     false
   end
 
   def highly_rated?(item)
-    item.parent.parent.css('td.ratecount').text.split(' ').first.to_f > 4.75
+    item.parent.parent.css('td.ratecount').text.split(' ').first.to_f > RATING_THRESHOLD
   rescue StandardError
     false
   end
@@ -81,5 +72,17 @@ class StoryFetcher
     title = link.gsub('.txt', '').split('/').last.titleize
 
     ApplicationMailer.send_document(title, file.path).deliver
+  end
+
+  def nodes
+    @nodes ||= parsed_nodes
+  end
+
+  def parsed_nodes
+    genre_links.map { |link| parse_node(link) }.flatten.compact
+  end
+
+  def parse_node(link)
+    Nokogiri::HTML(open(link)).css('a.title')
   end
 end

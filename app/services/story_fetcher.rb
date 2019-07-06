@@ -8,7 +8,8 @@ class StoryFetcher
 
   def call
     valid_links.each do |link|
-      story_text, meta = ''
+      story_text = ''
+      meta = ''
       (1..100).each do |num|
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
 

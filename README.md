@@ -17,6 +17,12 @@ EMAIL_USERNAME=<your sandbox gmail account>
 EMAIL_PASSWORD=<your sandbox gmail account password>
 ```
 
+### Running the app
+I have spent way too much time in Javascript land! Here's the Ruby stuff you need:
+* `rake send_stories`
+* `binding.pry`
+* `git push heroku master`
+
 
 ### To Literotica
 I've been a big fan for the last twenty (?) years. Thanks for supporting such an awesome, open, engaged community. If you're interested in hiring someone to develop an open API for you (to avoid this web scraping, perhaps), please get in touch! I've got lots of ideas for improvements to the user experience.

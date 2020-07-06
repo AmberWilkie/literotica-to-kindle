@@ -4,7 +4,8 @@ class StoryFetcher
   DAYS_AGO_TO_EXAMINE = 20
   RATING_THRESHOLD = 4.75
 
-  def initialize; end
+  def initialize;
+  end
 
   def call
     valid_links.each do |link|
@@ -12,7 +13,6 @@ class StoryFetcher
       meta = ''
       (1..100).each do |num|
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
-
         meta = build_meta(page) if meta.empty?
         story_text += page.css('div.b-story-body-x').text
         break unless page.css('a.b-pager-next').any?
@@ -44,15 +44,18 @@ class StoryFetcher
   end
 
   def published_twenty_days_ago?(item)
+    return true
     Date.strptime(item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s, '%m/%d/%y') ==
       Date.today - DAYS_AGO_TO_EXAMINE.days
-  rescue StandardError
+  rescue StandardError => e
+    warn e, e.backtrace
     false
   end
 
   def highly_rated?(item)
     item.parent.parent.css('td.ratecount').text.split(' ').first.to_f > RATING_THRESHOLD
-  rescue StandardError
+  rescue StandardError => e
+    warn e, e.backtrace
     false
   end
 
@@ -61,9 +64,9 @@ class StoryFetcher
   end
 
   def build_meta(page)
-    keywords = page.at("meta[name='keywords']")['content']
-    description = page.at("meta[name='description']")['content']
-    author = page.css('span.b-story-user-y').children.last.text
+    keywords = page.at("meta[name='keywords']")&['content']
+    description = page.at("meta[name='description']")&['content']
+    author = page.css('span.b-story-user-y').children.last&.text
 
     "#{keywords}\n\n#{description}\n\n#{author}\n\n\n\n"
   end

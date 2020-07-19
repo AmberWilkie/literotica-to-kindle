@@ -44,7 +44,6 @@ class StoryFetcher
   end
 
   def published_twenty_days_ago?(item)
-    return true
     Date.strptime(item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s, '%m/%d/%y') ==
       Date.today - DAYS_AGO_TO_EXAMINE.days
   rescue StandardError => e

@@ -47,7 +47,7 @@ class StoryFetcher
     Date.strptime(item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s, '%m/%d/%y') ==
       Date.today - DAYS_AGO_TO_EXAMINE.days
   rescue StandardError => e
-    warn e, e.backtrace
+    warn e, e.backtrace, item.parent.text[/\(.*?\)/].delete('(').delete(')').to_s
     false
   end
 
@@ -63,8 +63,8 @@ class StoryFetcher
   end
 
   def build_meta(page)
-    keywords = page.at("meta[name='keywords']")&['content']
-    description = page.at("meta[name='description']")&['content']
+    keywords = page.at("meta[name='keywords']")['content']
+    description = page.at("meta[name='description']")['content']
     author = page.css('span.b-story-user-y').children.last&.text
 
     "#{keywords}\n\n#{description}\n\n#{author}\n\n\n\n"

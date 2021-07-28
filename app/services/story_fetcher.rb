@@ -14,8 +14,8 @@ class StoryFetcher
       (1..100).each do |num|
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
         meta = build_meta(page) if meta.empty?
-        story_text += page.css('div.b-story-body-x').text
-        break unless page.css('a.b-pager-next').any?
+        story_text += page.css('div.aa_eQ').text
+        break unless page.css('a.l_bL').any?
       end
 
       send_to_kindle(link, story_text, meta)

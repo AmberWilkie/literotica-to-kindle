@@ -20,7 +20,7 @@ EMAIL_PASSWORD=<your sandbox gmail account password>
 ### Running the app
 I have spent way too much time in Javascript land! Here's the Ruby stuff you need:
 * `rake send_stories`
-* `binding.pry`
+* `binding.pry` (`exit-program`)
 * `git push heroku master`
 
 ### Deployment

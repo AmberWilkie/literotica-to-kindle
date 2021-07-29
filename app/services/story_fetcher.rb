@@ -14,11 +14,12 @@ class StoryFetcher
       (1..100).each do |num|
         page = Nokogiri::HTML(open("#{link}?page=#{num}"))
         meta = build_meta(page) if meta.empty?
-        story_text += page.css('div.aa_eQ').text
+        story_text += page.css('div.aa_ht').to_html.gsub("</p>", "\n").gsub("<p>", "")
         break unless page.css('a.l_bL').any?
       end
 
-      send_to_kindle(link, story_text, meta)
+      # Remove the div at the beginning of the story (slice)
+      send_to_kindle(link, story_text.slice(25, story_text.length), meta)
     end
   end
 
